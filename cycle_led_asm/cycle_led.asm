@@ -8,13 +8,15 @@
         .equ GREEN_LED, BIT6
         .equ BUTTON,    BIT3
 
-	;;
-	;; Main program
-	;;
+        ;;
+        ;; Main program
+        ;;
         .text
 
 main:
         mov     #(WDTPW | WDTHOLD), &WDTCTL ; Disable watchdog
+        mov     #__stack, r1                ; Set up stack
+        
         ;; Setup LED directions as out, BUTTON as in
         bis.b   #(GREEN_LED | RED_LED), &P1DIR
         bic.b   #BUTTON, &P1DIR
@@ -31,9 +33,9 @@ main:
 hang:
         bis     #LPM4, r2       ; Enter LPM4, execution stops
 
-	;;
-	;; ISR for button press
-	;;
+        ;;
+        ;; ISR for button press
+        ;;
 isr_button_press:
         bit.b   #BUTTON, &P1IFG ; Ignore interrupt from other than the button
         jz      isr_end
@@ -46,9 +48,9 @@ flip_green:
 isr_end:
         reti
 
-	;;
-	;; Interrupt vector table
-	;;
+        ;;
+        ;; Interrupt vector table
+        ;;
         .section .vectors, "a"
 
         .word   isr_end                 ; 0xFFE0 Unused
